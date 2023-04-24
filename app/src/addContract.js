@@ -1,18 +1,29 @@
 import { ethers } from 'ethers';
+import { Network, Alchemy } from 'alchemy-sdk';
 
-const provider = new ethers.providers.Web3Provider(ethereum);
+const settings = {
+  apiKey: process.env.API_KEY,
+  network: Network.ETH_GOERLI,
+};
+
+const alchemy = new Alchemy(settings);
+
+const provider = new ethers.providers.Web3Provider(window.ethereum.isConnected());
+await window.ethereum.request({ method: 'eth_requestAccounts' });
+
 
 export default async function addContract(
   id,
   contract,
   arbiter,
   beneficiary,
-  value
+  value,
+  hash
 ) {
   const buttonId = `approve-${id}`;
 
   const container = document.getElementById('container');
-  container.innerHTML += createHTML(buttonId, arbiter, beneficiary, value);
+  container.innerHTML += createHTML(buttonId, arbiter, beneficiary, value, hash);
 
   contract.on('Approved', () => {
     document.getElementById(buttonId).className = 'complete';
@@ -25,7 +36,7 @@ export default async function addContract(
   });
 }
 
-function createHTML(buttonId, arbiter, beneficiary, value) {
+function createHTML(buttonId, arbiter, beneficiary, value, hash) {
   return `
     <div class="existing-contract">
       <ul className="fields">
@@ -41,6 +52,9 @@ function createHTML(buttonId, arbiter, beneficiary, value) {
           <div> Value </div>
           <div> ${value} </div>
         </li>
+        <li>
+          <div> Hash </div>
+          <div> ${hash} </div>
         <div class="button" id="${buttonId}">
           Approve
         </div>

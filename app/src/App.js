@@ -1,9 +1,19 @@
-import { ethers } from 'ethers';
+import { ethers, providers } from 'ethers';
+import { Network, Alchemy, AlchemyProvider } from 'alchemy-sdk';
 import { useEffect, useState } from 'react';
 import deploy from './deploy';
 import Escrow from './Escrow';
 
+//require('dotenv').config();
+
+const settings = {
+  apiKey: process.env.API_KEY,
+  network: Network.ETH_GOERLI,
+};
+
+const alchemy = new Alchemy(settings);
 const provider = new ethers.providers.Web3Provider(window.ethereum);
+//await window.ethereum.request({ method: 'eth_requestAccounts' });
 
 export async function approve(escrowContract, signer) {
   const approveTxn = await escrowContract.connect(signer).approve();
@@ -17,7 +27,7 @@ function App() {
 
   useEffect(() => {
     async function getAccounts() {
-      const accounts = await provider.send('eth_requestAccounts', []);
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
 
       setAccount(accounts[0]);
       setSigner(provider.getSigner());
